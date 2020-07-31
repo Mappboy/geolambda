@@ -114,20 +114,20 @@ The version in the VERSION file will be used to tag the Docker images and create
   
 ```
 $ VERSION=$(cat VERSION)
-$ docker build . -t developmentseed/geolambda:${VERSION}
+$ docker build . -t cpoolerun/geolambda:${VERSION}
 ```
 
 3. Push the image to Docker Hub:
 
 ```
-$ docker push developmentseed/geolambda:${VERSION}
+$ docker push cpoolerun/geolambda:${VERSION}
 ```
 
 4. Create deployment package using the built-in [packaging script](bin/package.sh)
 
 ```
 $ docker run --rm -v $PWD:/home/geolambda \
-	-it developmentseed/geolambda:${VERSION} package.sh
+	-it cpoolerun/geolambda:${VERSION} package.sh
 ```
 
 This will create a lambda/ directory containing the native libraries and related files, along with a `lambda-deploy.zip` file that can be deployed as a Lambda layer.

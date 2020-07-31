@@ -28,7 +28,8 @@ ENV \
     SZIP_VERSION=2.1.1 \
     WEBP_VERSION=1.0.3 \
     ZSTD_VERSION=1.4.3 \
-    OPENSSL_VERSION=1.0.2
+    OPENSSL_VERSION=1.0.2 \
+    SPATIALITE_VERSION=4.3.0
 
 # Paths to things
 ENV \
@@ -176,6 +177,17 @@ RUN \
     make -j ${NPROC} install; \
     cd ${BUILD}; rm -rf geotiff
 
+#SQLite3
+RUN \
+mkdir sqlite; \
+wget -qO- https://www.sqlite.org/2020/sqlite-amalgamation-3320300.tar.gz \
+       | tar xvz -C sqlite  --strip-components=1; cd sqlite; \
+        ./configure --prefix=$PREFIX CFLAGS="-DSQLITE_ENABLE_RTREE=1"; \
+    make -j ${NPROC} install; \
+    cd ${BUILD}; rm -rf sqlite
+
+
+
 # GDAL
 RUN \
     mkdir gdal; \
@@ -211,6 +223,16 @@ RUN \
         | tar xvz -C openssl --strip-components=1; cd openssl; \
     ./config shared --prefix=${PREFIX}/openssl --openssldir=${PREFIX}/openssl; \
     make depend; make install; cd ..; rm -rf openssl
+
+
+# Libspatialite
+RUN \
+mkdir libspatialite; \
+wget -qO- https://www.gaia-gis.it/gaia-sins/libspatialite-sources/libspatialite-$SPATIALITE_VERSION.tar.gz \
+| tar xvz -C libspatialite  --strip-components=1; cd libspatialite; \
+        ./configure --prefix=$PREFIX \
+    make -j ${NPROC} install; \
+    cd ${BUILD}; rm -rf libspatialite
 
 
 # Copy shell scripts and config files over

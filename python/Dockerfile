@@ -1,10 +1,10 @@
-ARG VERSION=1.2.0
-FROM developmentseed/geolambda:${VERSION}
+ARG VERSION=2.0.1
+FROM cpoolerun/geolambda:${VERSION}
 
 LABEL maintainer="Development Seed <info@developmentseed.org>"
 LABEL authors="Matthew Hanson  <matt.a.hanson@gmail.com>"
 
-ARG PYVERSION=3.7.4
+ARG PYVERSION=3.8.3
 
 # install Python
 ENV \
@@ -13,8 +13,10 @@ ENV \
 
 RUN \
     curl https://pyenv.run | bash; \
-    CONFIGURE_OPTS="--with-openssl=${PREFIX}/openssl" \
+    CONFIGURE_OPTS="--enable-loadable-sqlite-extensions --enable-optimizations --with-openssl=${PREFIX}/openssl" \
         LD_RUN_PATH="${PREFIX}/openssl/lib" \
+        LDFLAGS="-L/usr/local/sqlite/lib" \
+        CPPFLAGS="-I/usr/local/sqlite/include" \
         pyenv install ${PYVERSION}; \
     pyenv global ${PYVERSION}; \
     pip install --upgrade pip
