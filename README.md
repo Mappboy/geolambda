@@ -135,17 +135,13 @@ This will create a lambda/ directory containing the native libraries and related
 5. Push as Lambda layer (if layer already exists a new version will be created)
 
 ```
-$ aws lambda publish-layer-version \
-	--layer-name geolambda \
-	--license-info "MIT" \
-	--description "Native geospatial libaries for all runtimes" \
-	--zip-file fileb://lambda-deploy.zip
+$ aws lambda publish-layer-version --layer-name mappboy-geolambda --license-info "MIT"  --description "Native geospatial libaries for all runtimes"  --zip-file fileb://lambda-deploy.zip  --compatible-runtimes python3.7
 ```
 
 6. Make layer public (needs to be done each time a new version is published)
 
 ```
-$ aws lambda add-layer-version-permission --layer-name geolambda \
+$ aws lambda add-layer-version-permission --layer-name mappboy-geolambda \
 	--statement-id public --version-number 1 --principal '*' \
 	--action lambda:GetLayerVersion
 ```

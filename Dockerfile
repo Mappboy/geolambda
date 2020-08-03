@@ -29,7 +29,7 @@ ENV \
     WEBP_VERSION=1.0.3 \
     ZSTD_VERSION=1.4.3 \
     OPENSSL_VERSION=1.0.2 \
-    SPATIALITE_VERSION=4.3.0
+    SPATIALITE_VERSION=5.0.0-beta0
 
 # Paths to things
 ENV \
@@ -88,86 +88,86 @@ RUN \
     ./configure --enable-python --prefix=$PREFIX CFLAGS="-O2 -Os"; \
     make -j ${NPROC} install; \
     cd ..; rm -rf geos
-
-# szip (for hdf)
-RUN \
-    mkdir szip; \
-    wget -qO- https://support.hdfgroup.org/ftp/lib-external/szip/$SZIP_VERSION/src/szip-$SZIP_VERSION.tar.gz \
-        | tar xvz -C szip --strip-components=1; cd szip; \
-    ./configure --prefix=$PREFIX; \
-    make -j ${NPROC} install; \
-    cd ..; rm -rf szip
-
-# libhdf4
-RUN \
-    mkdir hdf4; \
-    wget -qO- https://support.hdfgroup.org/ftp/HDF/releases/HDF$HDF4_VERSION/src/hdf-$HDF4_VERSION.tar \
-        | tar xv -C hdf4 --strip-components=1; cd hdf4; \
-    ./configure \
-        --prefix=$PREFIX \
-        --with-szlib=$PREFIX \
-        --enable-shared \
-        --disable-netcdf \
-        --disable-fortran; \
-    make -j ${NPROC} install; \
-    cd ..; rm -rf hdf4
-
-# libhdf5
-RUN \
-    mkdir hdf5; \
-    wget -qO- https://support.hdfgroup.org/ftp/HDF5/releases/hdf5-${HDF5_VERSION%.*}/hdf5-${HDF5_VERSION}/src/hdf5-$HDF5_VERSION.tar.gz \
-        | tar xvz -C hdf5 --strip-components=1; cd hdf5; \
-    ./configure \
-        --prefix=$PREFIX \
-        --with-szlib=$PREFIX; \
-    make -j ${NPROC} install; \
-    cd ..; rm -rf hdf5
-
-# NetCDF
-RUN \
-    mkdir netcdf; \
-    wget -qO- https://github.com/Unidata/netcdf-c/archive/v$NETCDF_VERSION.tar.gz \
-        | tar xvz -C netcdf --strip-components=1; cd netcdf; \
-    ./configure --prefix=$PREFIX --enable-hdf4; \
-    make -j ${NPROC} install; \
-    cd ..; rm -rf netcdf
-
-# WEBP
-RUN \
-    mkdir webp; \
-    wget -qO- https://storage.googleapis.com/downloads.webmproject.org/releases/webp/libwebp-${WEBP_VERSION}.tar.gz \
-        | tar xvz -C webp --strip-components=1; cd webp; \
-    CFLAGS="-O2 -Wl,-S" PKG_CONFIG_PATH="/usr/lib64/pkgconfig" ./configure --prefix=$PREFIX; \
-    make -j ${NPROC} install; \
-    cd ..; rm -rf webp
-
-# ZSTD
-RUN \
-    mkdir zstd; \
-    wget -qO- https://github.com/facebook/zstd/archive/v${ZSTD_VERSION}.tar.gz \
-        | tar -xvz -C zstd --strip-components=1; cd zstd; \
-    make -j ${NPROC} install PREFIX=$PREFIX ZSTD_LEGACY_SUPPORT=0 CFLAGS=-O1 --silent; \
-    cd ..; rm -rf zstd
-
-# openjpeg
-RUN \
-    mkdir openjpeg; \
-    wget -qO- https://github.com/uclouvain/openjpeg/archive/v$OPENJPEG_VERSION.tar.gz \
-        | tar xvz -C openjpeg --strip-components=1; cd openjpeg; mkdir build; cd build; \
-    cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$PREFIX; \
-    make -j ${NPROC} install; \
-    cd ../..; rm -rf openjpeg
-
-# jpeg_turbo
-RUN \
-    mkdir jpeg; \
-    wget -qO- https://github.com/libjpeg-turbo/libjpeg-turbo/archive/${LIBJPEG_TURBO_VERSION}.tar.gz \
-        | tar xvz -C jpeg --strip-components=1; cd jpeg; \
-    cmake -G"Unix Makefiles" -DCMAKE_INSTALL_PREFIX=$PREFIX .; \
-    make -j $(nproc) install; \
-    cd ..; rm -rf jpeg
-
-# geotiff
+#
+## szip (for hdf)
+#RUN \
+#    mkdir szip; \
+#    wget -qO- https://support.hdfgroup.org/ftp/lib-external/szip/$SZIP_VERSION/src/szip-$SZIP_VERSION.tar.gz \
+#        | tar xvz -C szip --strip-components=1; cd szip; \
+#    ./configure --prefix=$PREFIX; \
+#    make -j ${NPROC} install; \
+#    cd ..; rm -rf szip
+#
+## libhdf4
+#RUN \
+#    mkdir hdf4; \
+#    wget -qO- https://support.hdfgroup.org/ftp/HDF/releases/HDF$HDF4_VERSION/src/hdf-$HDF4_VERSION.tar \
+#        | tar xv -C hdf4 --strip-components=1; cd hdf4; \
+#    ./configure \
+#        --prefix=$PREFIX \
+#        --with-szlib=$PREFIX \
+#        --enable-shared \
+#        --disable-netcdf \
+#        --disable-fortran; \
+#    make -j ${NPROC} install; \
+#    cd ..; rm -rf hdf4
+#
+## libhdf5
+#RUN \
+#    mkdir hdf5; \
+#    wget -qO- https://support.hdfgroup.org/ftp/HDF5/releases/hdf5-${HDF5_VERSION%.*}/hdf5-${HDF5_VERSION}/src/hdf5-$HDF5_VERSION.tar.gz \
+#        | tar xvz -C hdf5 --strip-components=1; cd hdf5; \
+#    ./configure \
+#        --prefix=$PREFIX \
+#        --with-szlib=$PREFIX; \
+#    make -j ${NPROC} install; \
+#    cd ..; rm -rf hdf5
+#
+## NetCDF
+#RUN \
+#    mkdir netcdf; \
+#    wget -qO- https://github.com/Unidata/netcdf-c/archive/v$NETCDF_VERSION.tar.gz \
+#        | tar xvz -C netcdf --strip-components=1; cd netcdf; \
+#    ./configure --prefix=$PREFIX --enable-hdf4; \
+#    make -j ${NPROC} install; \
+#    cd ..; rm -rf netcdf
+#
+## WEBP
+#RUN \
+#    mkdir webp; \
+#    wget -qO- https://storage.googleapis.com/downloads.webmproject.org/releases/webp/libwebp-${WEBP_VERSION}.tar.gz \
+#        | tar xvz -C webp --strip-components=1; cd webp; \
+#    CFLAGS="-O2 -Wl,-S" PKG_CONFIG_PATH="/usr/lib64/pkgconfig" ./configure --prefix=$PREFIX; \
+#    make -j ${NPROC} install; \
+#    cd ..; rm -rf webp
+#
+## ZSTD
+#RUN \
+#    mkdir zstd; \
+#    wget -qO- https://github.com/facebook/zstd/archive/v${ZSTD_VERSION}.tar.gz \
+#        | tar -xvz -C zstd --strip-components=1; cd zstd; \
+#    make -j ${NPROC} install PREFIX=$PREFIX ZSTD_LEGACY_SUPPORT=0 CFLAGS=-O1 --silent; \
+#    cd ..; rm -rf zstd
+#
+## openjpeg
+#RUN \
+#    mkdir openjpeg; \
+#    wget -qO- https://github.com/uclouvain/openjpeg/archive/v$OPENJPEG_VERSION.tar.gz \
+#        | tar xvz -C openjpeg --strip-components=1; cd openjpeg; mkdir build; cd build; \
+#    cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$PREFIX; \
+#    make -j ${NPROC} install; \
+#    cd ../..; rm -rf openjpeg
+#
+## jpeg_turbo
+#RUN \
+#    mkdir jpeg; \
+#    wget -qO- https://github.com/libjpeg-turbo/libjpeg-turbo/archive/${LIBJPEG_TURBO_VERSION}.tar.gz \
+#        | tar xvz -C jpeg --strip-components=1; cd jpeg; \
+#    cmake -G"Unix Makefiles" -DCMAKE_INSTALL_PREFIX=$PREFIX .; \
+#    make -j $(nproc) install; \
+#    cd ..; rm -rf jpeg
+#
+## geotiff
 RUN \
     mkdir geotiff; \
     wget -qO- https://download.osgeo.org/geotiff/libgeotiff/libgeotiff-$GEOTIFF_VERSION.tar.gz \
@@ -180,7 +180,7 @@ RUN \
 #SQLite3
 RUN \
 mkdir sqlite; \
-wget -qO- https://www.sqlite.org/2020/sqlite-amalgamation-3320300.tar.gz \
+wget -qO- https://www.sqlite.org/2020/sqlite-autoconf-3320300.tar.gz \
        | tar xvz -C sqlite  --strip-components=1; cd sqlite; \
         ./configure --prefix=$PREFIX CFLAGS="-DSQLITE_ENABLE_RTREE=1"; \
     make -j ${NPROC} install; \
@@ -189,6 +189,7 @@ wget -qO- https://www.sqlite.org/2020/sqlite-amalgamation-3320300.tar.gz \
 
 
 # GDAL
+# I don't really care about any rest
 RUN \
     mkdir gdal; \
     wget -qO- http://download.osgeo.org/gdal/$GDAL_VERSION/gdal-$GDAL_VERSION.tar.gz \
@@ -197,14 +198,14 @@ RUN \
         --disable-debug \
         --disable-static \
         --prefix=${PREFIX} \
-        --with-openjpeg \
+        --without-openjpeg \
         --with-geotiff=${PREFIX} \
-        --with-hdf4=${PREFIX} \
-        --with-hdf5=${PREFIX} \
-        --with-netcdf=${PREFIX} \
-        --with-webp=${PREFIX} \
-        --with-zstd=${PREFIX} \
-        --with-jpeg=${PREFIX} \
+        --without-hdf4 \
+        --without-hdf5 \
+        --without-netcdf \
+        --without-webp \
+        --without-zstd \
+        --without-jpeg \
         --with-threads=yes \
         --with-curl=${PREFIX}/bin/curl-config \
         --without-python \
@@ -230,7 +231,7 @@ RUN \
 mkdir libspatialite; \
 wget -qO- https://www.gaia-gis.it/gaia-sins/libspatialite-sources/libspatialite-$SPATIALITE_VERSION.tar.gz \
 | tar xvz -C libspatialite  --strip-components=1; cd libspatialite; \
-        ./configure --prefix=$PREFIX \
+    CPPFLAGS="-I$PREFIX/include -DACCEPT_USE_OF_DEPRECATED_PROJ_API_H" LDFLAGS="-L${PREFIX}/lib" ./configure --prefix=$PREFIX --enable-freexl=no  --includedir=$PREFIX/include; \
     make -j ${NPROC} install; \
     cd ${BUILD}; rm -rf libspatialite
 

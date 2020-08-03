@@ -8,9 +8,16 @@ echo Creating deploy package
 # make deployment directory and add lambda handler
 mkdir -p $DEPLOY_DIR/lib
 
+echo Made bin
+mkdir -p $DEPLOY_DIR/bin
+
 # copy libs
 cp -P ${PREFIX}/lib/*.so* $DEPLOY_DIR/lib/
-cp -P ${PREFIX}/lib64/libjpeg*.so* $DEPLOY_DIR/lib/
+
+# copy bin
+cp -P ${PREFIX}/bin/* $DEPLOY_DIR/bin/
+
+# cp -P ${PREFIX}/lib64/libjpeg*.so* $DEPLOY_DIR/lib/
 
 strip $DEPLOY_DIR/lib/* || true
 
