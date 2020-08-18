@@ -6,7 +6,7 @@ LABEL authors="Matthew Hanson  <matt.a.hanson@gmail.com>"
 # install system libraries
 RUN \
     yum makecache fast; \
-    yum install -y wget libpng-devel nasm; \
+    yum install -y wget libpng-devel nasm rsync; \
     yum install -y bash-completion --enablerepo=epel; \
     yum clean all; \
     yum autoremove
@@ -58,7 +58,7 @@ RUN \
 RUN \
     mkdir proj; \
     wget -qO- http://download.osgeo.org/proj/proj-$PROJ_VERSION.tar.gz | tar xvz -C proj --strip-components=1; cd proj; \
-    ./configure --prefix=$PREFIX; \
+    CPPFLAGS="-I$PREFIX/include -DACCEPT_USE_OF_DEPRECATED_PROJ_API_H" ./configure --prefix=$PREFIX; \
     make -j ${NPROC} install; \
     cd ..; rm -rf proj
 
@@ -184,12 +184,28 @@ wget -qO- https://www.sqlite.org/2020/sqlite-autoconf-3320300.tar.gz \
        | tar xvz -C sqlite  --strip-components=1; cd sqlite; \
         ./configure --prefix=$PREFIX CFLAGS="-DSQLITE_ENABLE_RTREE=1"; \
     make -j ${NPROC} install; \
-    cd ${BUILD}; rm -rf sqlite
+    cd ${BUILD};
 
 
+# Open SSL is needed for building Python so it's included here for ease
+RUN \
+    mkdir openssl; \
+    wget -qO- https://www.openssl.org/source/openssl-${OPENSSL_VERSION}.tar.gz \
+        | tar xvz -C openssl --strip-components=1; cd openssl; \
+    ./config shared --prefix=${PREFIX}/openssl --openssldir=${PREFIX}/openssl; \
+    make depend; make install; cd ..; rm -rf openssl
+
+
+# Libspatialite
+RUN \
+mkdir libspatialite; \
+wget -qO- https://www.gaia-gis.it/gaia-sins/libspatialite-sources/libspatialite-$SPATIALITE_VERSION.tar.gz \
+| tar xvz -C libspatialite  --strip-components=1; cd libspatialite; \
+    CPPFLAGS="-I$PREFIX/include -DACCEPT_USE_OF_DEPRECATED_PROJ_API_H" LDFLAGS="-L${PREFIX}/lib" ./configure --prefix=$PREFIX --enable-freexl=no  --includedir=$PREFIX/include; \
+    make -j ${NPROC} install; \
+    cd ${BUILD}; rm -rf libspatialite
 
 # GDAL
-# I don't really care about any rest
 RUN \
     mkdir gdal; \
     wget -qO- http://download.osgeo.org/gdal/$GDAL_VERSION/gdal-$GDAL_VERSION.tar.gz \
@@ -216,24 +232,6 @@ RUN \
         LDFLAGS="-Wl,-rpath,'\$\$ORIGIN'"; \
     make -j ${NPROC} install; \
     cd ${BUILD}; rm -rf gdal
-
-# Open SSL is needed for building Python so it's included here for ease
-RUN \
-    mkdir openssl; \
-    wget -qO- https://www.openssl.org/source/openssl-${OPENSSL_VERSION}.tar.gz \
-        | tar xvz -C openssl --strip-components=1; cd openssl; \
-    ./config shared --prefix=${PREFIX}/openssl --openssldir=${PREFIX}/openssl; \
-    make depend; make install; cd ..; rm -rf openssl
-
-
-# Libspatialite
-RUN \
-mkdir libspatialite; \
-wget -qO- https://www.gaia-gis.it/gaia-sins/libspatialite-sources/libspatialite-$SPATIALITE_VERSION.tar.gz \
-| tar xvz -C libspatialite  --strip-components=1; cd libspatialite; \
-    CPPFLAGS="-I$PREFIX/include -DACCEPT_USE_OF_DEPRECATED_PROJ_API_H" LDFLAGS="-L${PREFIX}/lib" ./configure --prefix=$PREFIX --enable-freexl=no  --includedir=$PREFIX/include; \
-    make -j ${NPROC} install; \
-    cd ${BUILD}; rm -rf libspatialite
 
 
 # Copy shell scripts and config files over

@@ -142,6 +142,6 @@ $ aws lambda publish-layer-version --layer-name mappboy-geolambda --license-info
 
 ```
 $ aws lambda add-layer-version-permission --layer-name mappboy-geolambda \
-	--statement-id public --version-number 1 --principal '*' \
+	--statement-id public --version-number 5 --principal '*' \
 	--action lambda:GetLayerVersion
 ```

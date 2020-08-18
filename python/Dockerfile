@@ -6,6 +6,8 @@ LABEL authors="Matthew Hanson  <matt.a.hanson@gmail.com>"
 
 ARG PYVERSION=3.7.4
 
+RUN yum install -y rsync;
+
 # install Python
 ENV \
     PYENV_ROOT=/root/.pyenv \
@@ -26,5 +28,16 @@ COPY requirements*.txt ./
 RUN \
     pip install -r requirements-pre.txt; \
     pip install -r requirements.txt
+
+
+ARG PYVER=3.7
+
+RUN \
+  git clone https://github.com/coleifer/pysqlite3;  \
+  cd pysqlite3; \
+  cp /build/sqlite/sqlite3.[ch] .; \
+  python setup.py build_static;\
+  cp build/*/pysqlite3/_sqlite3.*so  /root/.pyenv/versions/$PYVERSION/lib/python${PYVER}/site-packages/
+
 
 COPY bin/* /usr/local/bin/
