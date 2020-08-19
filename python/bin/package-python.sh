@@ -26,6 +26,7 @@ rsync -ax $PYPATH/ $DEPLOY_DIR/ ${EXCLUDES[@]}
 cp -r $DEPLOY_DIR ./python
 rm ./python/lambda_function.py
 
+
 # zip up deploy package
 zip -ruq lambda-deploy.zip ./python
 

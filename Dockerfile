@@ -34,7 +34,7 @@ ENV \
 # Paths to things
 ENV \
     BUILD=/build \
-    NPROC=4 \
+    NPROC=16 \
     PREFIX=/usr/local \
     GDAL_CONFIG=/usr/local/bin/gdal-config \
     LD_LIBRARY_PATH=/usr/local/lib:/usr/local/lib64 \
@@ -183,9 +183,9 @@ mkdir sqlite; \
 wget -qO- https://www.sqlite.org/2020/sqlite-autoconf-3320300.tar.gz \
        | tar xvz -C sqlite  --strip-components=1; cd sqlite; \
         ./configure --prefix=$PREFIX CFLAGS="-DSQLITE_ENABLE_RTREE=1"; \
+        make sqlite.c; \
     make -j ${NPROC} install; \
-    cd ${BUILD};
-
+    cd ${BUILD}
 
 # Open SSL is needed for building Python so it's included here for ease
 RUN \
